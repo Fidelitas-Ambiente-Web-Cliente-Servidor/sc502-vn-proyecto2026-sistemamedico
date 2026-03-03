@@ -1,0 +1,31 @@
+
+body {
+  background: url("img/blue\ gradient\ border\ ipad.jpg");
+  background-size: cover;
+  display: flex;
+  flex-direction: column;    
+  justify-content: center;    
+  align-items: center;    
+  height: 100vh;              
+  margin: 0;
+}
+
+form {
+  width: 500px;              
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+h1{
+  text-align: center;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+i{
+  font-size: 50px;
+  color: #112b56;
+}
