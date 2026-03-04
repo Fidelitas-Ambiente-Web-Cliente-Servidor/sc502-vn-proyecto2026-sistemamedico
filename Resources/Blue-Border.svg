@@ -1,0 +1,20 @@
+<svg viewBox="0 0 100 100" preserveAspectRatio="none"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <!-- Fondo blanco -->
+  <rect width="100" height="100" fill="white"/>
+
+  <!-- Marco azul -->
+  <rect x="0" y="0" width="100" height="100"
+        fill="none"
+        stroke="#8ecae6"
+        stroke-opacity="0.5"
+        stroke-width="12"
+        filter="url(#blur)"/>
+</svg>
