@@ -11,22 +11,55 @@ document.addEventListener("DOMContentLoaded", function () {
             let correo = document.getElementById("correo");
             let contraseña = document.getElementById("contraseña");
 
+            let valido = true;
+
+            document.querySelectorAll("#formulario_login span")
+                .forEach(span => span.style.display = "none");
+
             mensaje.style.display = "block";
             mensaje.style.color = "red";
+            mensaje.innerText = "";
 
-            if (correo.value == "" || contraseña.value == "") {
+            // Valida los campos
+            if (correo.value === "") {
+                correo.parentElement
+                    .querySelector(".MensajeCampoRequerido")
+                    .style.display = "block";
+
+                valido = false;
+            }
+
+            if (contraseña.value === "") {
+                contraseña.parentElement
+                    .querySelector(".MensajeCampoRequerido")
+                    .style.display = "block";
+
+                valido = false;
+            }
+
+            // Valida Formato del Email
+            let formatoEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (correo.value !== "" && !formatoEmail.test(correo.value)) {
+                correo.parentElement
+                    .querySelector(".MensajeEmailNoValido")
+                    .style.display = "block";
+
+                valido = false;
+            }
+
+            // Valida password valido
+            if (contraseña.value !== "" && contraseña.value.length < 6) {
+                contraseña.parentElement
+                    .querySelector(".MensajePasswordNoValido")
+                    .style.display = "block";
+
+                valido = false;
+            }
+
+            // mensaje Final
+            if (!valido) {
                 mensaje.innerText = "Todos los campos obligatorios deben completarse";
-                return;
-            }
-
-            let formatoCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!formatoCorreo.test(correo.value)) {
-                mensaje.innerText = "El correo no tiene un formato válido";
-                return;
-            }
-
-            if (contraseña.value.length < 6) {
-                mensaje.innerText = "La contraseña debe tener al menos 6 caracteres";
                 return;
             }
 
@@ -35,9 +68,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-
     let formularioRegistro = document.getElementById("formulario_registro");
+
     if (formularioRegistro) {
+
         let mensajeRegistro = document.getElementById("mensaje_registro");
 
         formularioRegistro.addEventListener("submit", function (event) {
@@ -49,48 +83,84 @@ document.addEventListener("DOMContentLoaded", function () {
             let numero = document.getElementById("numero");
             let fechaNacimiento = document.getElementById("fechaNacimiento");
 
+            let valido = true;
+
+            // Ocultar todos los mensajes primero
+            document.querySelectorAll("#formulario_registro span")
+                .forEach(span => span.style.display = "none");
+
             mensajeRegistro.style.display = "block";
             mensajeRegistro.style.color = "red";
+            mensajeRegistro.innerText = "";
 
-            if (nombre.value == "" || email.value == "" || contraseña.value == "" || numero.value == "" || fechaNacimiento.value == "") {
-                mensajeRegistro.innerText = "Todos los campos son obligatorios";
-                return;
+            // CAMPOS VACÍOS
+            if (nombre.value === "") {
+                nombre.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+                valido = false;
             }
 
-            if (nombre.value.length < 3) {
-                mensajeRegistro.innerText = "El nombre debe tener al menos 3 caracteres";
-                return;
+            if (email.value === "") {
+                email.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+                valido = false;
+            }
+
+            if (contraseña.value === "") {
+                contraseña.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+                valido = false;
+            }
+
+            if (numero.value === "") {
+                numero.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+                valido = false;
+            }
+
+            if (fechaNacimiento.value === "") {
+                fechaNacimiento.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+                valido = false;
+            }
+
+            // VALIDACIONES ESPECÍFICAS
+            if (nombre.value !== "" && nombre.value.length < 3) {
+                nombre.parentElement.querySelectorAll(".MensajeCampoRequerido")[1].style.display = "block";
+                valido = false;
             }
 
             let formatoCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!formatoCorreo.test(email.value)) {
-                mensajeRegistro.innerText = "El correo no tiene un formato válido";
-                return;
+            if (email.value !== "" && !formatoCorreo.test(email.value)) {
+                email.parentElement.querySelector(".MensajeEmailNoValido").style.display = "block";
+                valido = false;
             }
 
-            if (contraseña.value.length < 6) {
-                mensajeRegistro.innerText = "La contraseña debe tener al menos 6 caracteres";
-                return;
+            if (contraseña.value !== "" && contraseña.value.length < 6) {
+                contraseña.parentElement.querySelector(".MensajePasswordNoValido").style.display = "block";
+                valido = false;
             }
+
             let formatoTelefono = /^\d{8}$/;
-            if (!formatoTelefono.test(numero.value)) {
-                mensajeRegistro.innerText = "El número de teléfono debe tener 8 dígitos";
-                return;
+            if (numero.value !== "" && !formatoTelefono.test(numero.value)) {
+                numero.parentElement.querySelector(".MensajeNumeroNoValido").style.display = "block";
+                valido = false;
             }
 
             let fechaNac = new Date(fechaNacimiento.value);
             let hoy = new Date();
-
             let fechaMinima = new Date();
             fechaMinima.setFullYear(hoy.getFullYear() - 18);
 
-            if (fechaNac > fechaMinima) {
-                mensajeRegistro.innerText = "Debes ser mayor de 18 años para registrarte";
+            if (fechaNacimiento.value !== "" && fechaNac > fechaMinima) {
+                fechaNacimiento.parentElement.querySelector(".MensajeEdadNoValida").style.display = "block";
+                valido = false;
+            }
+
+            // MENSAJE FINAL
+            if (!valido) {
+                mensajeRegistro.innerText = "Por favor corrige los campos marcados";
                 return;
             }
 
             mensajeRegistro.style.color = "green";
             mensajeRegistro.innerText = "Registro exitoso";
         });
-    }
+    };
 });
+
