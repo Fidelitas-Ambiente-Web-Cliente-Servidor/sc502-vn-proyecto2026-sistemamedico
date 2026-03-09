@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
             mensajeRegistro.style.color = "red";
             mensajeRegistro.innerText = "";
 
-            // CAMPOS VACÍOS
+            // Valida los campos
             if (nombre.value === "") {
                 nombre.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
                 valido = false;
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 valido = false;
             }
 
-            // VALIDACIONES ESPECÍFICAS
+            // Validaciones especificas
             if (nombre.value !== "" && nombre.value.length < 3) {
                 nombre.parentElement.querySelectorAll(".MensajeCampoRequerido")[1].style.display = "block";
                 valido = false;
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 valido = false;
             }
 
-            // MENSAJE FINAL
+            // mensaje Final
             if (!valido) {
                 mensajeRegistro.innerText = "Por favor corrige los campos marcados";
                 return;
