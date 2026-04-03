@@ -1,166 +1,197 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    let formularioLogin = document.getElementById("formulario_login");
-    if (formularioLogin) {
-        let mensaje = document.getElementById("mensaje");
+    const params = new URLSearchParams(window.location.search);
+const error = params.get("error");
+const registro = params.get("registro");
 
-        formularioLogin.addEventListener("submit", function (event) {
-            event.preventDefault();
+if (registro === "ok") {
+  let mensaje = document.getElementById("mensaje");
+  if (mensaje) {
+    mensaje.style.display = "block";
+    mensaje.style.color = "green";
+    mensaje.innerText = "Registro exitoso. Inicia sesión.";
+  }
+}
 
-            let correo = document.getElementById("correo");
-            let contraseña = document.getElementById("contraseña");
+if (error === "login") {
+  let mensaje = document.getElementById("mensaje");
+  if (mensaje) {
+    mensaje.style.display = "block";
+    mensaje.style.color = "red";
+    mensaje.innerText = "Correo o contraseña incorrectos";
+  }
+}
 
-            let valido = true;
+if (error === "exists") {
+  let email = document.getElementById("email");
 
-            document.querySelectorAll("#formulario_login span")
-                .forEach(span => span.style.display = "none");
+  if (email) {
+    let span = email.parentElement.querySelector(".MensajeEmailRepetido");
 
-            mensaje.style.display = "block";
-            mensaje.style.color = "red";
-            mensaje.innerText = "";
-
-            // Valida los campos
-            if (correo.value === "") {
-                correo.parentElement
-                    .querySelector(".MensajeCampoRequerido")
-                    .style.display = "block";
-
-                valido = false;
-            }
-
-            if (contraseña.value === "") {
-                contraseña.parentElement
-                    .querySelector(".MensajeCampoRequerido")
-                    .style.display = "block";
-
-                valido = false;
-            }
-
-            // Valida Formato del Email
-            let formatoEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (correo.value !== "" && !formatoEmail.test(correo.value)) {
-                correo.parentElement
-                    .querySelector(".MensajeEmailNoValido")
-                    .style.display = "block";
-
-                valido = false;
-            }
-
-            // Valida password valido
-            if (contraseña.value !== "" && contraseña.value.length < 6) {
-                contraseña.parentElement
-                    .querySelector(".MensajePasswordNoValido")
-                    .style.display = "block";
-
-                valido = false;
-            }
-
-            // mensaje Final
-            if (!valido) {
-                mensaje.innerText = "Todos los campos obligatorios deben completarse";
-                return;
-            }
-
-            mensaje.style.color = "green";
-            mensaje.innerText = "Inicio de sesión exitoso";
-        });
+    if (span) {
+      span.style.display = "block";
     }
+  }
 
-    let formularioRegistro = document.getElementById("formulario_registro");
+  let mensaje = document.getElementById("mensaje_registro");
+  if (mensaje) {
+    mensaje.style.display = "block";
+    mensaje.style.color = "red";
+    mensaje.innerText = "El correo ya está registrado";
+  }
+}
 
-    if (formularioRegistro) {
 
-        let mensajeRegistro = document.getElementById("mensaje_registro");
+  let formularioLogin = document.getElementById("formulario_login");
 
-        formularioRegistro.addEventListener("submit", function (event) {
-            event.preventDefault();
+  if (formularioLogin) {
+    let mensaje = document.getElementById("mensaje");
 
-            let nombre = document.getElementById("nombre");
-            let email = document.getElementById("email");
-            let contraseña = document.getElementById("contraseña");
-            let numero = document.getElementById("numero");
-            let fechaNacimiento = document.getElementById("fechaNacimiento");
+    formularioLogin.addEventListener("submit", function (event) {
 
-            let valido = true;
+      let correo = document.getElementById("correo");
+      let contrasena = document.getElementById("contrasena");
 
-            // Ocultar todos los mensajes primero
-            document.querySelectorAll("#formulario_registro span")
-                .forEach(span => span.style.display = "none");
+      let valido = true;
 
-            mensajeRegistro.style.display = "block";
-            mensajeRegistro.style.color = "red";
-            mensajeRegistro.innerText = "";
+      // Ocultar mensajes
+      document.querySelectorAll("#formulario_login span")
+        .forEach(span => span.style.display = "none");
 
-            // Valida los campos
-            if (nombre.value === "") {
-                nombre.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
-                valido = false;
-            }
+      mensaje.style.display = "block";
+      mensaje.style.color = "red";
+      mensaje.innerText = "";
 
-            if (email.value === "") {
-                email.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
-                valido = false;
-            }
+      // Validaciones
+      if (correo.value.trim() === "") {
+        correo.parentElement.querySelector(".MensajeCampoRequerido").style.display = "block";
+        valido = false;
+      }
 
-            if (contraseña.value === "") {
-                contraseña.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
-                valido = false;
-            }
+      if (contrasena.value.trim() === "") {
+        contrasena.parentElement.querySelector(".MensajeCampoRequerido").style.display = "block";
+        valido = false;
+      }
 
-            if (numero.value === "") {
-                numero.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
-                valido = false;
-            }
+      let formatoEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (fechaNacimiento.value === "") {
-                fechaNacimiento.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
-                valido = false;
-            }
+      if (correo.value !== "" && !formatoEmail.test(correo.value)) {
+        correo.parentElement.querySelector(".MensajeEmailNoValido").style.display = "block";
+        valido = false;
+      }
 
-            // Validaciones especificas
-            if (nombre.value !== "" && nombre.value.length < 3) {
-                nombre.parentElement.querySelectorAll(".MensajeCampoRequerido")[1].style.display = "block";
-                valido = false;
-            }
+      if (contrasena.value !== "" && contrasena.value.length < 6) {
+        contrasena.parentElement.querySelector(".MensajePasswordNoValido").style.display = "block";
+        valido = false;
+      }
 
-            let formatoCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (email.value !== "" && !formatoCorreo.test(email.value)) {
-                email.parentElement.querySelector(".MensajeEmailNoValido").style.display = "block";
-                valido = false;
-            }
+      // Si hay errores no envía
+      if (!valido) {
+        event.preventDefault();
+        mensaje.innerText = "Por favor corrige los campos";
+        return;
+      }
 
-            if (contraseña.value !== "" && contraseña.value.length < 6) {
-                contraseña.parentElement.querySelector(".MensajePasswordNoValido").style.display = "block";
-                valido = false;
-            }
+      // Si todo está bien deja enviar normal
+      mensaje.style.color = "green";
+      mensaje.innerText = "Validación correcta...";
+    });
+  }
 
-            let formatoTelefono = /^\d{8}$/;
-            if (numero.value !== "" && !formatoTelefono.test(numero.value)) {
-                numero.parentElement.querySelector(".MensajeNumeroNoValido").style.display = "block";
-                valido = false;
-            }
 
-            let fechaNac = new Date(fechaNacimiento.value);
-            let hoy = new Date();
-            let fechaMinima = new Date();
-            fechaMinima.setFullYear(hoy.getFullYear() - 18);
+  let formularioRegistro = document.getElementById("formulario_registro");
 
-            if (fechaNacimiento.value !== "" && fechaNac > fechaMinima) {
-                fechaNacimiento.parentElement.querySelector(".MensajeEdadNoValida").style.display = "block";
-                valido = false;
-            }
+  if (formularioRegistro) {
+    let mensajeRegistro = document.getElementById("mensaje_registro");
 
-            // mensaje Final
-            if (!valido) {
-                mensajeRegistro.innerText = "Por favor corrige los campos marcados";
-                return;
-            }
+    formularioRegistro.addEventListener("submit", function (event) {
 
-            mensajeRegistro.style.color = "green";
-            mensajeRegistro.innerText = "Registro exitoso";
-        });
-    };
+      let nombre = document.getElementById("nombre");
+      let email = document.getElementById("email");
+      let contrasena = document.getElementById("contrasena");
+      let numero = document.getElementById("numero");
+      let fechaNacimiento = document.getElementById("fechaNacimiento");
+
+      let valido = true;
+
+      // Ocultar mensajes
+      document.querySelectorAll("#formulario_registro span")
+        .forEach(span => span.style.display = "none");
+
+      mensajeRegistro.style.display = "block";
+      mensajeRegistro.style.color = "red";
+      mensajeRegistro.innerText = "";
+
+      // Validaciones
+      if (nombre.value.trim() === "") {
+        nombre.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+        valido = false;
+      }
+
+      if (email.value.trim() === "") {
+        email.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+        valido = false;
+      }
+
+      if (contrasena.value.trim() === "") {
+        contrasena.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+        valido = false;
+      }
+
+      if (numero.value.trim() === "") {
+        numero.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+        valido = false;
+      }
+
+      if (fechaNacimiento.value === "") {
+        fechaNacimiento.parentElement.querySelectorAll(".MensajeCampoRequerido")[0].style.display = "block";
+        valido = false;
+      }
+
+      if (nombre.value.length < 3) {
+        nombre.parentElement.querySelectorAll(".MensajeCampoRequerido")[1].style.display = "block";
+        valido = false;
+      }
+
+      let formatoCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!formatoCorreo.test(email.value)) {
+        email.parentElement.querySelector(".MensajeEmailNoValido").style.display = "block";
+        valido = false;
+      }
+
+      if (contrasena.value.length < 6) {
+        contrasena.parentElement.querySelector(".MensajePasswordNoValido").style.display = "block";
+        valido = false;
+      }
+
+      let formatoTelefono = /^\d{8}$/;
+      if (!formatoTelefono.test(numero.value)) {
+        numero.parentElement.querySelector(".MensajeNumeroNoValido").style.display = "block";
+        valido = false;
+      }
+
+      let fechaNac = new Date(fechaNacimiento.value);
+      let hoy = new Date();
+      let edad = hoy.getFullYear() - fechaNac.getFullYear();
+
+      if (edad < 18) {
+        fechaNacimiento.parentElement.querySelector(".MensajeEdadNoValida").style.display = "block";
+        valido = false;
+      }
+
+      // Si hay errores no envía
+      if (!valido) {
+        event.preventDefault();
+        mensajeRegistro.innerText = "Por favor corrige los campos";
+        return;
+      }
+
+      // Si todo está bien deja enviar
+      mensajeRegistro.style.color = "green";
+      mensajeRegistro.innerText = "Validación correcta";
+    });
+  }
+  
+
 });
-

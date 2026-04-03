@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="./diseño.css">
+  <script src="loginscript.js"></script>
+</head>
+
+<body>
+  <i class="bi bi-calendar-heart-fill"></i>
+  <h1>MediControl</h1>
+  <p>Inicia sesión para gestionar tus citas médicas</p>
+
+<form id="formulario_login" action="login_controller.php" method="POST" novalidate>
+  <div class="mb-3">
+    <label for="correo" class="form-label">Correo Electrónico</label>
+    <input type="email" class="form-control" id="correo" name="correo">
+    <span class="MensajeCampoRequerido">Campo obligatorio*</span>
+    <span class="MensajeEmailNoValido">El formato no corresponde a un email válido*</span>
+  </div>
+
+  <div class="mb-3">
+    <label for="contrasena" class="form-label">Contraseña</label>
+    <input type="password" class="form-control" id="contrasena" name="contrasena">
+    <span class="MensajeCampoRequerido">Campo obligatorio*</span>
+    <span class="MensajePasswordNoValido">La contraseña debe tener al menos 6 caracteres*</span>
+  </div>
+
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+    <label class="form-check-label" for="exampleCheck1">Recordarme</label>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+</form>
+  </form>
+  <p id="mensaje" style="display:none;"></p>
+
+  <p class="text-center mt-3">
+    ¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a>
+  </p>
+</body>
+
+</html>
