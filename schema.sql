@@ -2,6 +2,8 @@
 -- SISTEMA MÉDICO - SC502
 -- ============================================================
 
+USE appdb;
+
 CREATE TABLE ESTADO_TB (
     id_estado INT PRIMARY KEY AUTO_INCREMENT,
     nombre_estado VARCHAR(50) NOT NULL

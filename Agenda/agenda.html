@@ -100,14 +100,10 @@
             <input type="hidden" id="citaId">
 
             <div class="mb-3">
-              <label class="form-label">Paciente <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="campoPaciente" placeholder="Nombre del paciente">
-              <span class="error-msg" id="errPaciente">Campo obligatorio*</span>
-            </div>
-
-            <div class="mb-3">
               <label class="form-label">Doctor <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="campoDoctor" placeholder="Nombre del doctor">
+              <select class="form-select" id="campoDoctor">
+                <option value="">Seleccione un doctor</option>
+              </select>
               <span class="error-msg" id="errDoctor">Campo obligatorio*</span>
             </div>
 

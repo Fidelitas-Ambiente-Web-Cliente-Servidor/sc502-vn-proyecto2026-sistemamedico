@@ -3,6 +3,8 @@
 -- Ejecutar antes de correr schema.sql
 -- ============================================================
 
+USE appdb;
+
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS CITA_MEDICA_TB;
