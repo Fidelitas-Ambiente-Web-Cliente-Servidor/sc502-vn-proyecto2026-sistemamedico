@@ -1,6 +1,3 @@
--- ============================================================
--- SISTEMA MÉDICO - SC502
--- ============================================================
 
 CREATE TABLE ESTADO_TB (
     id_estado INT PRIMARY KEY AUTO_INCREMENT,
@@ -19,7 +16,7 @@ CREATE TABLE TIPO_USUARIO_TB (
 );
 
 INSERT INTO TIPO_USUARIO_TB (id_tipo_usuario, nombre_tipo, id_estado)
-VALUES
+VALUES 
 (1, 'ADMIN', 1),
 (2, 'CLIENTE', 1);
 
@@ -46,6 +43,7 @@ CREATE TABLE CORREO_TB (
 );
 
 
+
 CREATE TABLE TELEFONO_TB (
     identificacion VARCHAR(100),
     telefono VARCHAR(20),
@@ -56,12 +54,14 @@ CREATE TABLE TELEFONO_TB (
 );
 
 
+
 CREATE TABLE ESPECIALIDAD_TB (
     id_especialidad INT PRIMARY KEY AUTO_INCREMENT,
     nombre_especialidad VARCHAR(100),
     id_estado INT,
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
+
 
 
 CREATE TABLE DOCTOR_TB (
@@ -73,6 +73,7 @@ CREATE TABLE DOCTOR_TB (
     FOREIGN KEY (id_especialidad) REFERENCES ESPECIALIDAD_TB(id_especialidad),
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
+
 
 
 CREATE TABLE HORARIO_DOCTOR_TB (
@@ -101,3 +102,4 @@ CREATE TABLE CITA_MEDICA_TB (
     FOREIGN KEY (id_doctor) REFERENCES DOCTOR_TB(id_doctor),
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
+
