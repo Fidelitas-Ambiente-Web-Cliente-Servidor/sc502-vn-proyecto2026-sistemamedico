@@ -27,9 +27,6 @@
             <a class="nav-link text-primary" href="../Dashboard/dashboard.html">Dashboard</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-primary" href="#">Recordatorios</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link active fw-bold text-primary" href="#">Agenda</a>
           </li>
         </ul>
@@ -101,10 +98,16 @@
 
             <div class="mb-3">
               <label class="form-label">Doctor <span class="text-danger">*</span></label>
-              <select class="form-select" id="campoDoctor">
+              <select class="form-select" id="campoDoctor" onchange="toggleNuevoDoctor(this.value)">
                 <option value="">Seleccione un doctor</option>
               </select>
-              <span class="error-msg" id="errDoctor">Campo obligatorio*</span>
+              <span class="error-msg" id="errDoctor">Seleccione un doctor*</span>
+            </div>
+
+            <div class="mb-3" id="nuevoDoctorDiv" style="display:none;">
+              <label class="form-label">Nombre del nuevo doctor <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="campoNuevoDoctor" placeholder="Ej: Dr. Juan Pérez">
+              <span class="error-msg" id="errNuevoDoctor">Campo obligatorio*</span>
             </div>
 
             <div class="row">

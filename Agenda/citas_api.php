@@ -40,6 +40,11 @@ switch ($action) {
         $fecha     = $_POST['fecha'];
         $hora      = $_POST['hora'];
         $motivo    = $_POST['motivo'] ?? '';
+
+        if ($id_doctor === 'nuevo') {
+            $id_doctor = $model->crearDoctor($_POST['nombre_doctor']);
+        }
+
         $ok = $model->create($_SESSION['usuario'], $id_doctor, $fecha, $hora, $motivo);
         echo json_encode(["response" => $ok ? "00" : "01"]);
         break;

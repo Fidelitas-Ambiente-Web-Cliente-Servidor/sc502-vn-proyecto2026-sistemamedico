@@ -30,7 +30,21 @@ function cargarDoctores() {
         opt.textContent = d.nombre_completo;
         select.appendChild(opt);
       });
+      // Opción para crear nuevo doctor
+      var optNuevo = document.createElement("option");
+      optNuevo.value       = "nuevo";
+      optNuevo.textContent = "➕ Crear nuevo doctor...";
+      select.appendChild(optNuevo);
     });
+}
+
+function toggleNuevoDoctor(valor) {
+  var div = document.getElementById("nuevoDoctorDiv");
+  div.style.display = valor === "nuevo" ? "block" : "none";
+  if (valor !== "nuevo") {
+    document.getElementById("campoNuevoDoctor").value = "";
+    document.getElementById("errNuevoDoctor").style.display = "none";
+  }
 }
 
 // ── TABLA ────────────────────────────────────────────────────────────────────
@@ -54,7 +68,7 @@ function renderizarTabla(citas) {
       "<td>" + cita.paciente + "</td>" +
       "<td>" + cita.doctor + "</td>" +
       "<td>" + formatearFecha(cita.fecha) + "</td>" +
-      "<td>" + cita.hora + "</td>" +
+      "<td>" + (cita.hora ? cita.hora.substring(0, 5) : "") + "</td>" +
       "<td>" + (cita.motivo || "-") + "</td>" +
       "<td class='text-center'>" +
         "<button class='btn btn-sm btn-outline-primary me-1' onclick='abrirModalEditar(" + JSON.stringify(cita) + ")'>" +
@@ -77,22 +91,26 @@ function formatearFecha(fecha) {
 
 function abrirModalNueva() {
   document.getElementById("tituloModal").innerHTML = "<i class='bi bi-calendar-plus me-2'></i>Nueva Cita";
-  document.getElementById("citaId").value       = "";
-  document.getElementById("campoDoctor").value  = "";
-  document.getElementById("campoFecha").value   = "";
-  document.getElementById("campoHora").value    = "";
-  document.getElementById("campoMotivo").value  = "";
+  document.getElementById("citaId").value          = "";
+  document.getElementById("campoDoctor").value     = "";
+  document.getElementById("campoNuevoDoctor").value = "";
+  document.getElementById("nuevoDoctorDiv").style.display = "none";
+  document.getElementById("campoFecha").value      = "";
+  document.getElementById("campoHora").value       = "";
+  document.getElementById("campoMotivo").value     = "";
   ocultarErrores();
   modalCita.show();
 }
 
 function abrirModalEditar(cita) {
   document.getElementById("tituloModal").innerHTML = "<i class='bi bi-pencil me-2'></i>Editar Cita";
-  document.getElementById("citaId").value       = cita.id_cita;
-  document.getElementById("campoDoctor").value  = cita.id_doctor;
-  document.getElementById("campoFecha").value   = cita.fecha;
-  document.getElementById("campoHora").value    = cita.hora;
-  document.getElementById("campoMotivo").value  = cita.motivo || "";
+  document.getElementById("citaId").value          = cita.id_cita;
+  document.getElementById("campoDoctor").value     = cita.id_doctor;
+  document.getElementById("campoNuevoDoctor").value = "";
+  document.getElementById("nuevoDoctorDiv").style.display = "none";
+  document.getElementById("campoFecha").value      = cita.fecha;
+  document.getElementById("campoHora").value       = cita.hora;
+  document.getElementById("campoMotivo").value     = cita.motivo || "";
   ocultarErrores();
   modalCita.show();
 }
@@ -105,17 +123,22 @@ function abrirModalEliminar(id_cita) {
 // ── CRUD ─────────────────────────────────────────────────────────────────────
 
 function guardarCita() {
-  var id_doctor = document.getElementById("campoDoctor").value;
-  var fecha     = document.getElementById("campoFecha").value;
-  var hora      = document.getElementById("campoHora").value;
-  var motivo    = document.getElementById("campoMotivo").value.trim();
-  var idEditar  = document.getElementById("citaId").value;
+  var id_doctor    = document.getElementById("campoDoctor").value;
+  var nombreNuevo  = document.getElementById("campoNuevoDoctor").value.trim();
+  var fecha        = document.getElementById("campoFecha").value;
+  var hora         = document.getElementById("campoHora").value;
+  var motivo       = document.getElementById("campoMotivo").value.trim();
+  var idEditar     = document.getElementById("citaId").value;
 
   ocultarErrores();
   var valido = true;
 
   if (id_doctor === "") {
     document.getElementById("errDoctor").style.display = "block";
+    valido = false;
+  }
+  if (id_doctor === "nuevo" && nombreNuevo === "") {
+    document.getElementById("errNuevoDoctor").style.display = "block";
     valido = false;
   }
   if (fecha === "") {
@@ -131,9 +154,12 @@ function guardarCita() {
 
   var datos = new FormData();
   datos.append("id_doctor", id_doctor);
-  datos.append("fecha",     fecha);
-  datos.append("hora",      hora);
-  datos.append("motivo",    motivo);
+  if (id_doctor === "nuevo") {
+    datos.append("nombre_doctor", nombreNuevo);
+  }
+  datos.append("fecha",  fecha);
+  datos.append("hora",   hora);
+  datos.append("motivo", motivo);
 
   if (idEditar === "") {
     datos.append("action", "store");
@@ -147,6 +173,7 @@ function guardarCita() {
     .then(function (data) {
       if (data.response === "00") {
         modalCita.hide();
+        cargarDoctores();
         cargarCitas();
       } else {
         mostrarError("Error al guardar la cita.");
@@ -177,9 +204,10 @@ function confirmarEliminar() {
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 
 function ocultarErrores() {
-  document.getElementById("errDoctor").style.display = "none";
-  document.getElementById("errFecha").style.display  = "none";
-  document.getElementById("errHora").style.display   = "none";
+  document.getElementById("errDoctor").style.display      = "none";
+  document.getElementById("errNuevoDoctor").style.display = "none";
+  document.getElementById("errFecha").style.display       = "none";
+  document.getElementById("errHora").style.display        = "none";
 }
 
 function mostrarError(msg) {

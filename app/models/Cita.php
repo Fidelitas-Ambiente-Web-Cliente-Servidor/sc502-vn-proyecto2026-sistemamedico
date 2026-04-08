@@ -14,15 +14,16 @@ class Cita
         $sql = "
             SELECT
                 c.id_cita,
-                up.nombre_completo AS paciente,
-                ud.nombre_completo AS doctor,
+                c.id_doctor,
+                COALESCE(up.nombre_completo, c.identificacion) AS paciente,
+                COALESCE(ud.nombre_completo, 'Sin asignar')    AS doctor,
                 c.fecha,
                 c.hora,
                 c.motivo
             FROM CITA_MEDICA_TB c
-            JOIN USUARIO_TB up ON c.identificacion = up.identificacion
-            JOIN DOCTOR_TB d   ON c.id_doctor = d.id_doctor
-            JOIN USUARIO_TB ud ON d.identificacion = ud.identificacion
+            LEFT JOIN USUARIO_TB up ON c.identificacion = up.identificacion
+            LEFT JOIN DOCTOR_TB d   ON c.id_doctor = d.id_doctor
+            LEFT JOIN USUARIO_TB ud ON d.identificacion = ud.identificacion
             ORDER BY c.fecha, c.hora
         ";
         return $this->conn->query($sql);
@@ -33,15 +34,16 @@ class Cita
         $stmt = $this->conn->prepare("
             SELECT
                 c.id_cita,
-                up.nombre_completo AS paciente,
-                ud.nombre_completo AS doctor,
+                c.id_doctor,
+                COALESCE(up.nombre_completo, c.identificacion) AS paciente,
+                COALESCE(ud.nombre_completo, 'Sin asignar')    AS doctor,
                 c.fecha,
                 c.hora,
                 c.motivo
             FROM CITA_MEDICA_TB c
-            JOIN USUARIO_TB up ON c.identificacion = up.identificacion
-            JOIN DOCTOR_TB d   ON c.id_doctor = d.id_doctor
-            JOIN USUARIO_TB ud ON d.identificacion = ud.identificacion
+            LEFT JOIN USUARIO_TB up ON c.identificacion = up.identificacion
+            LEFT JOIN DOCTOR_TB d   ON c.id_doctor = d.id_doctor
+            LEFT JOIN USUARIO_TB ud ON d.identificacion = ud.identificacion
             WHERE c.identificacion = ?
             ORDER BY c.fecha, c.hora
         ");
@@ -59,6 +61,28 @@ class Cita
             WHERE d.id_estado = 1
         ";
         return $this->conn->query($sql);
+    }
+
+    public function crearDoctor($nombre)
+    {
+        $identificacion = 'DOC_' . uniqid();
+        $id_estado = 1;
+
+        $stmt = $this->conn->prepare("
+            INSERT INTO USUARIO_TB (identificacion, nombre_completo, id_estado)
+            VALUES (?, ?, ?)
+        ");
+        $stmt->bind_param("ssi", $identificacion, $nombre, $id_estado);
+        $stmt->execute();
+
+        $stmt = $this->conn->prepare("
+            INSERT INTO DOCTOR_TB (identificacion, id_estado)
+            VALUES (?, ?)
+        ");
+        $stmt->bind_param("si", $identificacion, $id_estado);
+        $stmt->execute();
+
+        return $this->conn->insert_id;
     }
 
     public function create($identificacion, $id_doctor, $fecha, $hora, $motivo)
