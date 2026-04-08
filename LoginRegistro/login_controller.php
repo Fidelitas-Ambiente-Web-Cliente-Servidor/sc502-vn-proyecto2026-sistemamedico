@@ -41,9 +41,9 @@ if ($user && password_verify($contrasena, $user["contrasena"])) {
 
 // redirección por rol
 if ($user["id_tipo_usuario"] == 1) {
-    header("Location: http://localhost:8080/sc502-vn-proyecto2026-sistemamedico/Admin/admin.html"); // admin
+    header("Location: http://localhost:8080/sc502-vn-proyecto2026-sistemamedico/Admin/admin.php"); // admin
 } else {
-    header("Location: http://localhost:8080/sc502-vn-proyecto2026-sistemamedico/Dashboard/dashboard.html"); // usuario normal
+    header("Location: http://localhost:8080/sc502-vn-proyecto2026-sistemamedico/Dashboard/dashboard.php"); // usuario normal
 }
 
 
