@@ -40,7 +40,7 @@ if (!isset($_SESSION['usuario'])) {
       </div>
 
       <div class="d-flex gap-2">
-        <a href="../UserProfile/UserProfile.html" class="btn btn-primary btn-sm">Perfil</a>
+        <a href="../UserProfile/UserProfile.php" class="btn btn-primary btn-sm">Perfil</a>
         <a href="../LoginRegistro/logout.php" class="btn btn-outline-primary btn-sm">Salir</a>
       </div>
 
