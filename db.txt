@@ -1,12 +1,13 @@
+USE appdb;
 
 CREATE TABLE ESTADO_TB (
     id_estado INT PRIMARY KEY AUTO_INCREMENT,
     nombre_estado VARCHAR(50) NOT NULL
 );
 
-INSERT INTO ESTADO_TB (id_estado, nombre_estado)
-VALUES (1, 'ACTIVO');
-
+INSERT INTO ESTADO_TB (id_estado, nombre_estado) VALUES
+(1, 'ACTIVO'),
+(2, 'INACTIVO');
 
 CREATE TABLE TIPO_USUARIO_TB (
     id_tipo_usuario INT PRIMARY KEY AUTO_INCREMENT,
@@ -15,11 +16,10 @@ CREATE TABLE TIPO_USUARIO_TB (
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
 
-INSERT INTO TIPO_USUARIO_TB (id_tipo_usuario, nombre_tipo, id_estado)
-VALUES 
+INSERT INTO TIPO_USUARIO_TB (id_tipo_usuario, nombre_tipo, id_estado) VALUES
 (1, 'ADMIN', 1),
-(2, 'CLIENTE', 1);
-
+(2, 'CLIENTE', 1),
+(3, 'DOCTOR', 1);
 
 CREATE TABLE USUARIO_TB (
     identificacion VARCHAR(100) PRIMARY KEY,
@@ -32,7 +32,6 @@ CREATE TABLE USUARIO_TB (
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
 
-
 CREATE TABLE CORREO_TB (
     identificacion VARCHAR(100),
     correo VARCHAR(100),
@@ -41,8 +40,6 @@ CREATE TABLE CORREO_TB (
     FOREIGN KEY (identificacion) REFERENCES USUARIO_TB(identificacion),
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
-
-
 
 CREATE TABLE TELEFONO_TB (
     identificacion VARCHAR(100),
@@ -53,8 +50,6 @@ CREATE TABLE TELEFONO_TB (
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
 
-
-
 CREATE TABLE ESPECIALIDAD_TB (
     id_especialidad INT PRIMARY KEY AUTO_INCREMENT,
     nombre_especialidad VARCHAR(100),
@@ -62,19 +57,17 @@ CREATE TABLE ESPECIALIDAD_TB (
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
 
-
-
 CREATE TABLE DOCTOR_TB (
     id_doctor INT PRIMARY KEY AUTO_INCREMENT,
     identificacion VARCHAR(100),
     id_especialidad INT,
     id_estado INT,
+    cedula_profesional VARCHAR(50) DEFAULT NULL,
+    horario VARCHAR(50) DEFAULT NULL,
     FOREIGN KEY (identificacion) REFERENCES USUARIO_TB(identificacion),
     FOREIGN KEY (id_especialidad) REFERENCES ESPECIALIDAD_TB(id_especialidad),
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
-
-
 
 CREATE TABLE HORARIO_DOCTOR_TB (
     id_horario INT PRIMARY KEY AUTO_INCREMENT,
@@ -86,7 +79,6 @@ CREATE TABLE HORARIO_DOCTOR_TB (
     FOREIGN KEY (id_doctor) REFERENCES DOCTOR_TB(id_doctor),
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
-
 
 CREATE TABLE CITA_MEDICA_TB (
     id_cita INT PRIMARY KEY AUTO_INCREMENT,
@@ -102,4 +94,3 @@ CREATE TABLE CITA_MEDICA_TB (
     FOREIGN KEY (id_doctor) REFERENCES DOCTOR_TB(id_doctor),
     FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
 );
-

@@ -7,7 +7,6 @@ if (!isset($_SESSION['usuario'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,17 +16,14 @@ if (!isset($_SESSION['usuario'])) {
   <link rel="stylesheet" href="./dashboard_styles.css">
   <script src="dashboard_scripts.js" defer></script>
 </head>
-
 <body>
 
   <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm px-4">
     <div class="container-fluid">
-
       <div class="d-flex align-items-center">
         <i class="bi bi-heart-pulse-fill text-primary fs-4 me-2"></i>
         <span class="fw-bold text-primary fs-5">MediControl</span>
       </div>
-
       <div class="mx-auto">
         <ul class="navbar-nav flex-row gap-4">
           <li class="nav-item">
@@ -38,12 +34,10 @@ if (!isset($_SESSION['usuario'])) {
           </li>
         </ul>
       </div>
-
       <div class="d-flex gap-2">
         <a href="../UserProfile/UserProfile.php" class="btn btn-primary btn-sm">Perfil</a>
         <a href="../LoginRegistro/logout.php" class="btn btn-outline-primary btn-sm">Salir</a>
       </div>
-
     </div>
   </nav>
 
@@ -54,13 +48,11 @@ if (!isset($_SESSION['usuario'])) {
       <span class="fw-semibold">Bienvenido, <?php echo htmlspecialchars($_SESSION['usuario']); ?></span>
     </div>
 
-    <!-- Secciones -->
-    <div class="row g-5">
+    <div class="row g-4">
 
-      <!-- Agenda -->
-      <div class="col-12">
+      <div class="col-12 col-lg-7">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h4 class="text-primary mb-0">Agenda</h4>
+          <h4 class="text-primary mb-0">Mis Citas</h4>
           <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary btn-sm" onclick="cargarCitasDashboard()" title="Refrescar">
               <i class="bi bi-arrow-clockwise"></i>
@@ -73,7 +65,6 @@ if (!isset($_SESSION['usuario'])) {
         <div class="card shadow-sm">
           <div class="card-body p-0">
             <ul class="list-group list-group-flush" id="listaCitasDashboard">
-              <!-- citas renderizadas por JS -->
             </ul>
           </div>
           <div class="card-footer text-end bg-white border-0 pt-0">
@@ -84,9 +75,23 @@ if (!isset($_SESSION['usuario'])) {
         </div>
       </div>
 
+      <div class="col-12 col-lg-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="text-primary mb-0">Doctores Disponibles</h4>
+          <button class="btn btn-outline-secondary btn-sm" onclick="cargarDoctores()" title="Refrescar">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush" id="listaDoctores">
+            </ul>
+          </div>
+        </div>
+      </div>
+
     </div>
-
   </div>
-</body>
 
+</body>
 </html>
