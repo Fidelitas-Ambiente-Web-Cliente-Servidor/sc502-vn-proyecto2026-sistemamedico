@@ -9,192 +9,175 @@ class Cita
         $this->conn = $db;
     }
 
-    public function getAll()
+    // ADMIN CREA CITA DISPONIBLE
+    public function createCita($nombre_doctor, $especialidad, $licencia_medica, $fecha, $hora)
     {
         $sql = "
-        SELECT
+            INSERT INTO CITA_MEDICA_TB
+            (
+                identificacion,
+                nombre_doctor,
+                especialidad,
+                licencia_medica,
+                fecha,
+                hora,
+                motivo,
+                id_estado
+            )
+            VALUES
+            (
+                NULL,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                '',
+                1
+            )
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param(
+            "sssss",
+            $nombre_doctor,
+            $especialidad,
+            $licencia_medica,
+            $fecha,
+            $hora
+        );
+
+        return $stmt->execute();
+    }
+
+    // CITAS DISPONIBLES
+    public function getCitasDisponibles()
+    {
+        $sql = "
+            SELECT
+                id_cita,
+                nombre_doctor,
+                especialidad,
+                licencia_medica,
+                fecha,
+                hora
+            FROM CITA_MEDICA_TB
+            WHERE identificacion IS NULL
+              AND id_estado = 1
+            ORDER BY fecha, hora
+        ";
+
+        return $this->conn->query($sql);
+    }
+
+    // USUARIO RESERVA
+    public function reservarCita($usuario, $id_cita, $motivo = '')
+    {
+        $sql = "
+            UPDATE CITA_MEDICA_TB
+            SET
+                identificacion = ?,
+                motivo = ?
+            WHERE id_cita = ?
+              AND identificacion IS NULL
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssi", $usuario, $motivo, $id_cita);
+
+        return $stmt->execute();
+    }
+
+    // CITAS DEL USUARIO
+public function getCitasPorUsuario($usuario)
+{
+    $sql = "
+        SELECT 
             c.id_cita,
-            c.id_doctor,
-            COALESCE(up.nombre_completo, c.identificacion) AS paciente,
-            COALESCE(ud.nombre_completo, 'Sin asignar')    AS doctor,
+            c.identificacion AS paciente,
+            c.nombre_doctor AS doctor,
             c.fecha,
             c.hora,
             c.motivo
         FROM CITA_MEDICA_TB c
-        LEFT JOIN USUARIO_TB up ON c.identificacion = up.identificacion
-        LEFT JOIN DOCTOR_TB d   ON c.id_doctor = d.id_doctor
-        LEFT JOIN USUARIO_TB ud ON d.identificacion = ud.identificacion
-        WHERE c.id_estado = 1
+        WHERE c.identificacion = ?
         ORDER BY c.fecha, c.hora
     ";
-        return $this->conn->query($sql);
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("s", $usuario);
+    $stmt->execute();
+
+    return $stmt->get_result();
+}
+
+    // EDITAR CITA (ADMIN)
+public function updateCita($id_cita, $nombre_doctor, $especialidad, $licencia_medica, $fecha, $hora)
+{
+    $sql = "
+        UPDATE CITA_MEDICA_TB
+        SET 
+            nombre_doctor = ?,
+            especialidad = ?,
+            licencia_medica = ?,
+            fecha = ?,
+            hora = ?
+        WHERE id_cita = ?
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    if (!$stmt) {
+        die("Error prepare: " . $this->conn->error);
     }
 
-    public function getByUser($identificacion)
-    {
-        $stmt = $this->conn->prepare("
-        SELECT
-            c.id_cita,
-            c.id_doctor,
-            COALESCE(up.nombre_completo, c.identificacion) AS paciente,
-            COALESCE(ud.nombre_completo, 'Sin asignar')    AS doctor,
-            c.fecha,
-            c.hora,
-            c.motivo
-        FROM CITA_MEDICA_TB c
-        LEFT JOIN USUARIO_TB up ON c.identificacion = up.identificacion
-        LEFT JOIN DOCTOR_TB d   ON c.id_doctor = d.id_doctor
-        LEFT JOIN USUARIO_TB ud ON d.identificacion = ud.identificacion
-        WHERE c.identificacion = ? AND c.id_estado = 1
-        ORDER BY c.fecha, c.hora
-    ");
-        $stmt->bind_param("s", $identificacion);
-        $stmt->execute();
-        return $stmt->get_result();
-    }
-    public function getDoctores()
-    {
-        $sql = "
-            SELECT d.id_doctor, u.nombre_completo
-            FROM DOCTOR_TB d
-            JOIN USUARIO_TB u ON d.identificacion = u.identificacion
-            WHERE d.id_estado = 1
-        ";
-        return $this->conn->query($sql);
+    $stmt->bind_param(
+        "sssssi",
+        $nombre_doctor,
+        $especialidad,
+        $licencia_medica,
+        $fecha,
+        $hora,
+        $id_cita
+    );
+
+    $ok = $stmt->execute();
+
+    if (!$ok) {
+        die("Error execute: " . $stmt->error);
     }
 
-    //lista médicos con especialidad, cédula y horario
-    public function getMedicos()
-    {
-        $sql = "
-            SELECT
-                d.id_doctor,
-                u.nombre_completo AS nombre,
-                COALESCE(e.nombre_especialidad, d.cedula_profesional) AS especialidad,
-                d.cedula_profesional AS cedula,
-                d.horario
-            FROM DOCTOR_TB d
-            JOIN USUARIO_TB u ON d.identificacion = u.identificacion
-            LEFT JOIN ESPECIALIDAD_TB e ON d.id_especialidad = e.id_especialidad
-            WHERE d.id_estado = 1
-            ORDER BY u.nombre_completo
-        ";
-        return $this->conn->query($sql);
-    }
+    return $ok;
+}
 
-    //crea médico completo con especialidad, cédula y horario ──
-    public function crearMedicoCompleto($nombre, $especialidad, $cedula, $horario)
-    {
-        $identificacion = 'DOC_' . uniqid();
-        $id_estado = 1;
 
-        $id_tipo_doctor = 3;
-        $stmt = $this->conn->prepare("
-        INSERT INTO USUARIO_TB (identificacion, nombre_completo, id_tipo_usuario, id_estado)
-        VALUES (?, ?, ?, ?)
-");
-        $stmt->bind_param("ssii", $identificacion, $nombre, $id_tipo_doctor, $id_estado);
-        $stmt->execute();
+// ELIMINAR CITA (ADMIN)
+public function deleteCita($id_cita)
+{
+    $sql = "DELETE FROM CITA_MEDICA_TB WHERE id_cita = ?";
 
-        $stmt = $this->conn->prepare("SELECT id_especialidad FROM ESPECIALIDAD_TB WHERE nombre_especialidad = ?");
-        $stmt->bind_param("s", $especialidad);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("i", $id_cita);
 
-        if ($result) {
-            $id_especialidad = $result['id_especialidad'];
-        } else {
-            $stmt = $this->conn->prepare("INSERT INTO ESPECIALIDAD_TB (nombre_especialidad, id_estado) VALUES (?, 1)");
-            $stmt->bind_param("s", $especialidad);
-            $stmt->execute();
-            $id_especialidad = $this->conn->insert_id;
-        }
+    return $stmt->execute();
+}
 
-        $stmt = $this->conn->prepare("
-            INSERT INTO DOCTOR_TB (identificacion, id_especialidad, id_estado, cedula_profesional, horario)
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $stmt->bind_param("siiss", $identificacion, $id_especialidad, $id_estado, $cedula, $horario);
-        $stmt->execute();
 
-        return $this->conn->insert_id > 0;
-    }
+public function liberarCita($id_cita, $usuario)
+{
+    $sql = "
+        UPDATE CITA_MEDICA_TB
+        SET identificacion = NULL,
+            motivo = '',
+            notas = NULL
+        WHERE id_cita = ?
+          AND identificacion = ?
+    ";
 
-    public function eliminarMedico($id_doctor)
-    {
-        $stmt = $this->conn->prepare("UPDATE DOCTOR_TB SET id_estado = 2 WHERE id_doctor = ?");
-        $stmt->bind_param("i", $id_doctor);
-        $stmt->execute();
-        return $stmt->affected_rows > 0;
-    }
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("is", $id_cita, $usuario);
 
-    public function crearDoctor($nombre)
-    {
-        $identificacion = 'DOC_' . uniqid();
-        $id_estado = 1;
-
-        $stmt = $this->conn->prepare("
-            INSERT INTO USUARIO_TB (identificacion, nombre_completo, id_estado)
-            VALUES (?, ?, ?)
-        ");
-        $stmt->bind_param("ssi", $identificacion, $nombre, $id_estado);
-        $stmt->execute();
-
-        $stmt = $this->conn->prepare("
-            INSERT INTO DOCTOR_TB (identificacion, id_estado)
-            VALUES (?, ?)
-        ");
-        $stmt->bind_param("si", $identificacion, $id_estado);
-        $stmt->execute();
-
-        return $this->conn->insert_id;
-    }
-
-    public function create($identificacion, $id_doctor, $fecha, $hora, $motivo)
-    {
-        $id_estado = 1;
-        $stmt = $this->conn->prepare("
-            INSERT INTO CITA_MEDICA_TB (identificacion, id_doctor, fecha, hora, motivo, id_estado)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->bind_param("sisssi", $identificacion, $id_doctor, $fecha, $hora, $motivo, $id_estado);
-        return $stmt->execute();
-    }
-
-    public function update($id_cita, $id_doctor, $fecha, $hora, $motivo)
-    {
-        $stmt = $this->conn->prepare("
-            UPDATE CITA_MEDICA_TB
-            SET id_doctor = ?, fecha = ?, hora = ?, motivo = ?
-            WHERE id_cita = ?
-        ");
-        $stmt->bind_param("isssi", $id_doctor, $fecha, $hora, $motivo, $id_cita);
-        return $stmt->execute();
-    }
-
-    public function delete($id_cita)
-    {
-        $stmt = $this->conn->prepare(
-            "UPDATE CITA_MEDICA_TB SET id_estado = 2 WHERE id_cita = ?"
-        );
-        $stmt->bind_param("i", $id_cita);
-        return $stmt->execute();
-    }
-    public function getDoctoresConHorario()
-    {
-        $sql = "
-            SELECT
-                d.id_doctor,
-                u.nombre_completo AS nombre,
-                COALESCE(e.nombre_especialidad, '-') AS especialidad,
-                d.horario
-            FROM DOCTOR_TB d
-            JOIN USUARIO_TB u ON d.identificacion = u.identificacion
-            LEFT JOIN ESPECIALIDAD_TB e ON d.id_especialidad = e.id_especialidad
-            WHERE d.id_estado = 1
-            ORDER BY u.nombre_completo
-        ";
-        return $this->conn->query($sql);
-    }
+    return $stmt->execute();
+}
 
 }

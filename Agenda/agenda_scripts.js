@@ -1,97 +1,70 @@
 var modalCita = null;
 var modalEliminar = null;
 
-// Horarios por jornada
-var HORARIOS = {
-  "Mañana (07:00 - 13:00)": { inicio: "07:00", fin: "13:00" },
-  "Tarde (13:00 - 19:00)": { inicio: "13:00", fin: "19:00" },
-  "Noche (19:00 - 01:00)": { inicio: "19:00", fin: "23:59" },
-};
-
-// Doctores cargados
-var doctoresCargados = [];
-
 document.addEventListener("DOMContentLoaded", function () {
   modalCita = new bootstrap.Modal(document.getElementById("modalCita"));
   modalEliminar = new bootstrap.Modal(document.getElementById("modalEliminar"));
 
-  cargarDoctores();
+  cargarCitasDisponibles();
   cargarCitas();
 });
 
-//API 
+
+// CARGAR MIS CITAS
 
 function cargarCitas() {
   fetch("citas_api.php?action=getCitas")
-    .then(function (res) {
-      return res.json();
-    })
-    .then(function (data) {
+    .then(res => res.json())
+    .then(data => {
       renderizarTabla(data.citas);
     })
-    .catch(function () {
-      mostrarError("Error al cargar las citas.");
+    .catch(() => {
+      mostrarError("Error al cargar citas");
     });
 }
 
-function cargarDoctores() {
-  fetch("citas_api.php?action=getDoctoresHorario")
-    .then(function (res) {
-      return res.json();
-    })
-    .then(function (data) {
-      doctoresCargados = data.doctores || [];
+// CARGAR CITAS DISPONIBLES
 
-      var select = document.getElementById("campoDoctor");
-      select.innerHTML = '<option value="">Seleccione un doctor</option>';
+function cargarCitasDisponibles() {
+  fetch("citas_api.php?action=getDisponibles")
+    .then(res => res.json())
+    .then(data => {
 
-      doctoresCargados.forEach(function (d) {
-        var opt = document.createElement("option");
-        opt.value = d.id_doctor;
-        opt.textContent =
-          d.nombre + (d.especialidad ? " — " + d.especialidad : "");
-        opt.dataset.horario = d.horario || "";
-        select.appendChild(opt);
+      let select = document.getElementById("campoDoctor");
+
+      select.innerHTML =
+        '<option value="">Seleccione una cita disponible</option>';
+
+      data.citas.forEach(function (cita) {
+
+        let option = document.createElement("option");
+
+        option.value = cita.id_cita;
+
+        option.textContent =
+          cita.nombre_doctor +
+          " — " +
+          cita.especialidad +
+          " — Licencia: " +
+          cita.licencia_medica +
+          " — " +
+          formatearFecha(cita.fecha) +
+          " — " +
+          cita.hora.substring(0, 5);
+
+        select.appendChild(option);
       });
-
-      // Verificar si viene id_doctor por URL
-      var params = new URLSearchParams(window.location.search);
-      var idDoctor = params.get("id_doctor");
-      if (idDoctor) {
-        setTimeout(function () {
-          abrirModalNueva(idDoctor);
-        }, 300);
-      }
+    })
+    .catch(() => {
+      mostrarError("Error al cargar citas disponibles");
     });
 }
 
-function getHorarioDoctor(id_doctor) {
-  var doc = doctoresCargados.find(function (d) {
-    return d.id_doctor == id_doctor;
-  });
-  return doc ? doc.horario : null;
-}
-
-function aplicarRestriccionHora(id_doctor) {
-  var campoHora = document.getElementById("campoHora");
-  var horario = getHorarioDoctor(id_doctor);
-
-  if (!horario || !HORARIOS[horario]) {
-    campoHora.removeAttribute("min");
-    campoHora.removeAttribute("max");
-    return;
-  }
-
-  campoHora.min = HORARIOS[horario].inicio;
-  campoHora.max = HORARIOS[horario].fin;
-  campoHora.value = "";
-}
-
-//TABLA
+// TABLA
 
 function renderizarTabla(citas) {
-  var tbody = document.getElementById("cuerpoTabla");
-  var mensajeVacio = document.getElementById("mensajeVacio");
+  let tbody = document.getElementById("cuerpoTabla");
+  let mensajeVacio = document.getElementById("mensajeVacio");
 
   tbody.innerHTML = "";
 
@@ -103,200 +76,117 @@ function renderizarTabla(citas) {
   mensajeVacio.style.display = "none";
 
   citas.forEach(function (cita) {
-    var fila = document.createElement("tr");
-    fila.innerHTML =
-      "<td>" +
-      cita.paciente +
-      "</td>" +
-      "<td>" +
-      cita.doctor +
-      "</td>" +
-      "<td>" +
-      formatearFecha(cita.fecha) +
-      "</td>" +
-      "<td>" +
-      (cita.hora ? cita.hora.substring(0, 5) : "") +
-      "</td>" +
-      "<td>" +
-      (cita.motivo || "-") +
-      "</td>" +
-      "<td class='text-center'>" +
-      "<button class='btn btn-sm btn-outline-primary me-1' onclick='abrirModalEditar(" +
-      JSON.stringify(cita) +
-      ")'>" +
-      "<i class='bi bi-pencil'></i>" +
-      "</button>" +
-      "<button class='btn btn-sm btn-outline-danger' onclick='abrirModalEliminar(" +
-      cita.id_cita +
-      ")'>" +
-      "<i class='bi bi-trash'></i>" +
-      "</button>" +
-      "</td>";
-    tbody.appendChild(fila);
+
+    let fila = `
+      <tr>
+        <td>${cita.paciente}</td>
+        <td>${cita.doctor}</td>
+        <td>${formatearFecha(cita.fecha)}</td>
+        <td>${cita.hora ? cita.hora.substring(0,5) : ""}</td>
+        <td>${cita.motivo || "-"}</td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-outline-danger"
+            onclick="abrirModalEliminar(${cita.id_cita})">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+
+    tbody.innerHTML += fila;
   });
 }
 
 function formatearFecha(fecha) {
-  var partes = fecha.split("-");
+  let partes = fecha.split("-");
   return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
 
-//MODALES
+// MODAL NUEVA CITA
 
-function abrirModalNueva(idDoctorPreseleccionado) {
-  document.getElementById("tituloModal").innerHTML =
-    "<i class='bi bi-calendar-plus me-2'></i>Nueva Cita";
+
+function abrirModalNueva() {
   document.getElementById("citaId").value = "";
-  document.getElementById("campoFecha").value = "";
-  document.getElementById("campoHora").value = "";
+  document.getElementById("campoDoctor").value = "";
   document.getElementById("campoMotivo").value = "";
+
+  ocultarErrores();
+  modalCita.show();
+}
+
+// RESERVAR CITA
+
+
+function guardarCita() {
+  let id_cita = document.getElementById("campoDoctor").value;
+  let motivo = document.getElementById("campoMotivo").value.trim();
+
   ocultarErrores();
 
-  document.getElementById("campoDoctorDiv").style.display = "none";
-
-  if (idDoctorPreseleccionado) {
-    document.getElementById("campoDoctor").value = idDoctorPreseleccionado;
-    aplicarRestriccionHora(idDoctorPreseleccionado);
-
-    // Mostrar nombre del doctor preseleccionado
-    var doc = doctoresCargados.find(function (d) {
-      return d.id_doctor == idDoctorPreseleccionado;
-    });
-    if (doc) {
-      document.getElementById("doctorPreseleccionado").textContent =
-        doc.nombre + (doc.especialidad ? " — " + doc.especialidad : "");
-      document.getElementById("doctorPreseleccionadoDiv").style.display =
-        "block";
-    }
-  } else {
-    document.getElementById("campoDoctorDiv").style.display = "block";
-    document.getElementById("doctorPreseleccionadoDiv").style.display = "none";
-    document.getElementById("campoDoctor").value = "";
-    document.getElementById("campoHora").removeAttribute("min");
-    document.getElementById("campoHora").removeAttribute("max");
+  if (id_cita === "") {
+    document.getElementById("errDoctor").style.display = "block";
+    return;
   }
 
-  modalCita.show();
+  let datos = new FormData();
+  datos.append("action", "reservar");
+  datos.append("id_cita", id_cita);
+  datos.append("motivo", motivo);
+
+  fetch("citas_api.php", {
+    method: "POST",
+    body: datos
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.response === "00") {
+        modalCita.hide();
+        cargarCitas();
+        cargarCitasDisponibles();
+      } else {
+        mostrarError("Error al reservar cita");
+      }
+    })
+    .catch(() => {
+      mostrarError("Error de conexión");
+    });
 }
 
-function abrirModalEditar(cita) {
-  document.getElementById("tituloModal").innerHTML =
-    "<i class='bi bi-pencil me-2'></i>Editar Cita";
-  document.getElementById("citaId").value = cita.id_cita;
-  document.getElementById("campoDoctor").value = cita.id_doctor;
-  document.getElementById("campoDoctorDiv").style.display = "block";
-  document.getElementById("doctorPreseleccionadoDiv").style.display = "none";
-  document.getElementById("campoFecha").value = cita.fecha;
-  document.getElementById("campoHora").value = cita.hora;
-  document.getElementById("campoMotivo").value = cita.motivo || "";
-  aplicarRestriccionHora(cita.id_doctor);
-  ocultarErrores();
-  modalCita.show();
-}
+// ELIMINAR CITA
+
 
 function abrirModalEliminar(id_cita) {
   document.getElementById("idEliminar").value = id_cita;
   modalEliminar.show();
 }
 
-//CRUD 
-
-function guardarCita() {
-  var id_doctor = document.getElementById("campoDoctor").value;
-  var fecha = document.getElementById("campoFecha").value;
-  var hora = document.getElementById("campoHora").value;
-  var motivo = document.getElementById("campoMotivo").value.trim();
-  var idEditar = document.getElementById("citaId").value;
-
-  ocultarErrores();
-  var valido = true;
-
-  if (id_doctor === "") {
-    document.getElementById("errDoctor").style.display = "block";
-    valido = false;
-  }
-  if (fecha === "") {
-    document.getElementById("errFecha").style.display = "block";
-    valido = false;
-  }
-  if (hora === "") {
-    document.getElementById("errHora").style.display = "block";
-    valido = false;
-  }
-
-  // Validar que la hora esté dentro del rango del doctor
-  var horario = getHorarioDoctor(id_doctor);
-  if (hora && horario && HORARIOS[horario]) {
-    if (hora < HORARIOS[horario].inicio || hora > HORARIOS[horario].fin) {
-      document.getElementById("errHora").textContent =
-        "La hora debe estar dentro de la jornada del doctor (" + horario + ")*";
-      document.getElementById("errHora").style.display = "block";
-      valido = false;
-    }
-  }
-
-  if (!valido) return;
-
-  var datos = new FormData();
-  datos.append("id_doctor", id_doctor);
-  datos.append("fecha", fecha);
-  datos.append("hora", hora);
-  datos.append("motivo", motivo);
-
-  if (idEditar === "") {
-    datos.append("action", "store");
-  } else {
-    datos.append("action", "update");
-    datos.append("id_cita", idEditar);
-  }
-
-  fetch("citas_api.php", { method: "POST", body: datos })
-    .then(function (res) {
-      return res.json();
-    })
-    .then(function (data) {
-      if (data.response === "00") {
-        modalCita.hide();
-        cargarCitas();
-      } else {
-        mostrarError("Error al guardar la cita.");
-      }
-    })
-    .catch(function () {
-      mostrarError("Error de conexión.");
-    });
-}
-
 function confirmarEliminar() {
-  var id_cita = document.getElementById("idEliminar").value;
-  var datos = new FormData();
-  datos.append("action", "delete");
+  let id_cita = document.getElementById("idEliminar").value;
+
+  let datos = new FormData();
+  datos.append("action", "liberar"); 
   datos.append("id_cita", id_cita);
 
-  fetch("citas_api.php", { method: "POST", body: datos })
-    .then(function (res) {
-      return res.json();
-    })
-    .then(function (data) {
-      if (data.response === "00") {
-        modalEliminar.hide();
-        cargarCitas();
-      } else {
-        mostrarError("Error al eliminar la cita.");
-      }
-    })
-    .catch(function () {
-      mostrarError("Error de conexión.");
-    });
+  fetch("citas_api.php", {
+    method: "POST",
+    body: datos
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.response === "00") {
+      modalEliminar.hide();
+      cargarCitas();
+      cargarCitasDisponibles();
+    } else {
+      mostrarError("Error al liberar");
+    }
+  });
 }
 
-//UTILS 
+
 
 function ocultarErrores() {
   document.getElementById("errDoctor").style.display = "none";
-  document.getElementById("errFecha").style.display = "none";
-  document.getElementById("errHora").style.display = "none";
-  document.getElementById("errHora").textContent = "Campo obligatorio*";
 }
 
 function mostrarError(msg) {

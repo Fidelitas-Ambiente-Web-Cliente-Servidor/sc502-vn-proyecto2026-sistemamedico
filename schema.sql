@@ -12,6 +12,9 @@ CREATE TABLE ESTADO_TB (
 INSERT INTO ESTADO_TB (id_estado, nombre_estado)
 VALUES (1, 'ACTIVO');
 
+INSERT INTO ESTADO_TB (id_estado, nombre_estado)
+VALUES (2, 'INACTIVO');
+
 
 CREATE TABLE TIPO_USUARIO_TB (
     id_tipo_usuario INT PRIMARY KEY AUTO_INCREMENT,
@@ -24,6 +27,9 @@ INSERT INTO TIPO_USUARIO_TB (id_tipo_usuario, nombre_tipo, id_estado)
 VALUES
 (1, 'ADMIN', 1),
 (2, 'CLIENTE', 1);
+
+INSERT INTO TIPO_USUARIO_TB (id_tipo_usuario, nombre_tipo, id_estado)
+VALUES (3, 'DOCTOR', 1);
 
 
 CREATE TABLE USUARIO_TB (

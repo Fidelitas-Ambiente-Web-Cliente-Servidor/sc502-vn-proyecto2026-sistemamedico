@@ -1,87 +1,121 @@
 <?php
-
 session_start();
 
-require_once __DIR__ . '/../../Config/Database.php';
-require_once __DIR__ . '/../models/Cita.php';
+header('Content-Type: application/json');
 
-class CitaController
-{
-    private $model;
+require_once __DIR__ . '/../Config/Database.php';
+require_once __DIR__ . '/../app/models/Cita.php';
 
-    public function __construct()
-    {
-        if (!isset($_SESSION['usuario'])) {
-            header("Location: ../../LoginRegistro/login.php");
-            exit;
-        }
+$db = (new Database())->connect();
+$model = new Cita($db);
 
-        $database = new Database();
-        $db = $database->connect();
-        $this->model = new Cita($db);
+$action = $_GET['action'] ?? $_POST['action'] ?? '';
+
+try {
+
+    /*
+    MIS CITAS (USUARIO)
+    */
+    if ($action == 'getCitas') {
+
+        $result = $model->getCitasPorUsuario($_SESSION['usuario']);
+
+        echo json_encode([
+            "citas" => $result->fetch_all(MYSQLI_ASSOC)
+        ]);
+        exit;
     }
 
-    public function agenda()
-    {
-        require __DIR__ . '/../../Agenda/agenda.php';
+    /*
+    CITAS DISPONIBLES
+    */
+    if ($action == 'getDisponibles') {
+
+        $result = $model->getCitasDisponibles();
+
+        echo json_encode([
+            "citas" => $result->fetch_all(MYSQLI_ASSOC)
+        ]);
+        exit;
     }
 
-    public function index()
-    {
-        header('Content-Type: application/json');
-        $rol = $_SESSION['rol'];
+    /*
+    RESERVAR CITA
+    */
+    if ($action == 'reservar') {
 
-        if ($rol == 1) {
-            $result = $this->model->getAll();
-        } else {
-            $result = $this->model->getByUser($_SESSION['usuario']);
-        }
+        $ok = $model->reservarCita(
+            $_SESSION['usuario'],
+            $_POST['id_cita'],
+            $_POST['motivo'] ?? ''
+        );
 
-        echo json_encode(["citas" => $result->fetch_all(MYSQLI_ASSOC)]);
+        echo json_encode([
+            "response" => $ok ? "00" : "01"
+        ]);
+        exit;
     }
 
-    public function store()
-    {
-        header('Content-Type: application/json');
-        try {
-            $id_doctor = $_POST['id_doctor'];
-            $fecha     = $_POST['fecha'];
-            $hora      = $_POST['hora'];
-            $motivo    = $_POST['motivo'] ?? '';
+    /*
+    CREAR CITA DESDE ADMIN
+    */
+    if ($action == 'store') {
 
-            $this->model->create($_SESSION['usuario'], $id_doctor, $fecha, $hora, $motivo);
-            echo json_encode(["response" => "00"]);
-        } catch (Exception $e) {
-            echo json_encode(["response" => "01"]);
-        }
+        $ok = $model->createCita(
+            $_POST['nombre_doctor'],
+            $_POST['especialidad'],
+            $_POST['licencia_medica'],
+            $_POST['fecha'],
+            $_POST['hora']
+        );
+
+        echo json_encode([
+            "response" => $ok ? "00" : "01"
+        ]);
+        exit;
     }
 
-    public function update()
-    {
-        header('Content-Type: application/json');
-        try {
-            $id_cita   = $_POST['id_cita'];
-            $id_doctor = $_POST['id_doctor'];
-            $fecha     = $_POST['fecha'];
-            $hora      = $_POST['hora'];
-            $motivo    = $_POST['motivo'] ?? '';
+    /*
+    EDITAR CITA
+    */
+    if ($action == 'update') {
 
-            $this->model->update($id_cita, $id_doctor, $fecha, $hora, $motivo);
-            echo json_encode(["response" => "00"]);
-        } catch (Exception $e) {
-            echo json_encode(["response" => "01"]);
-        }
+        $ok = $model->updateCita(
+            $_POST['id_cita'],
+            $_POST['nombre_doctor'],
+            $_POST['especialidad'],
+            $_POST['licencia_medica'],
+            $_POST['fecha'],
+            $_POST['hora'],
+            $_POST['motivo'] ?? ''
+        );
+
+        echo json_encode([
+            "response" => $ok ? "00" : "01"
+        ]);
+        exit;
     }
 
-    public function delete()
-    {
-        header('Content-Type: application/json');
-        try {
-            $id_cita = $_POST['id_cita'];
-            $this->model->delete($id_cita);
-            echo json_encode(["response" => "00"]);
-        } catch (Exception $e) {
-            echo json_encode(["response" => "01"]);
-        }
+    /*
+    ELIMINAR CITA
+    */
+    if ($action == 'delete') {
+
+        $ok = $model->deleteCita($_POST['id_cita']);
+
+        echo json_encode([
+            "response" => $ok ? "00" : "01"
+        ]);
+        exit;
     }
+
+    echo json_encode([
+        "error" => "Acción no válida"
+    ]);
+
+} catch (Throwable $e) {
+
+    echo json_encode([
+        "error" => $e->getMessage()
+    ]);
 }

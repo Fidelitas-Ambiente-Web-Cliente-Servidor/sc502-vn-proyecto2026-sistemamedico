@@ -1,75 +1,131 @@
 <?php
-
 session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    http_response_code(401);
-    echo json_encode(["error" => "No autorizado"]);
-    exit;
-}
-
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../Config/Database.php';
 require_once __DIR__ . '/../app/models/Cita.php';
 
-$database = new Database();
-$db = $database->connect();
+$db = (new Database())->connect();
 $model = new Cita($db);
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-switch ($action) {
+try {
 
-    case 'getCitas':
-        if ($_SESSION['rol'] == 1) {
-            $result = $model->getAll();
-        } else {
-            $result = $model->getByUser($_SESSION['usuario']);
-        }
-        echo json_encode(["citas" => $result->fetch_all(MYSQLI_ASSOC)]);
-        break;
 
-    case 'getDoctores':
-        $result = $model->getDoctores();
-        echo json_encode(["doctores" => $result->fetch_all(MYSQLI_ASSOC)]);
-        break;
+    // CITAS DISPONIBLES
+   
+    if ($action == 'getDisponibles') {
 
-    case 'store':
-        $id_doctor = $_POST['id_doctor'];
-        $fecha = $_POST['fecha'];
-        $hora = $_POST['hora'];
-        $motivo = $_POST['motivo'] ?? '';
+        $result = $model->getCitasDisponibles();
 
-        if ($id_doctor === 'nuevo') {
-            $id_doctor = $model->crearDoctor($_POST['nombre_doctor']);
-        }
+        echo json_encode([
+            "citas" => $result->fetch_all(MYSQLI_ASSOC)
+        ]);
+        exit;
+    }
 
-        $ok = $model->create($_SESSION['usuario'], $id_doctor, $fecha, $hora, $motivo);
+    // RESERVAR CITA
+
+    if ($action == 'reservar') {
+
+        $ok = $model->reservarCita(
+            $_SESSION['usuario'],
+            $_POST['id_cita'],
+            $_POST['motivo'] ?? ''
+        );
+
         echo json_encode(["response" => $ok ? "00" : "01"]);
-        break;
+        exit;
+    }
 
-    case 'update':
-        $id_cita = $_POST['id_cita'];
-        $id_doctor = $_POST['id_doctor'];
-        $fecha = $_POST['fecha'];
-        $hora = $_POST['hora'];
-        $motivo = $_POST['motivo'] ?? '';
-        $ok = $model->update($id_cita, $id_doctor, $fecha, $hora, $motivo);
+
+    // MIS CITAS
+
+    if ($action == 'getCitas') {
+
+        $result = $model->getCitasPorUsuario($_SESSION['usuario']);
+
+        echo json_encode([
+            "citas" => $result->fetch_all(MYSQLI_ASSOC)
+        ]);
+        exit;
+    }
+
+   
+    // CREAR CITA (ADMIN)
+
+    if ($action == 'crearCita') {
+
+        $ok = $model->createCita(
+            $_POST['nombre_doctor'],
+            $_POST['especialidad'],
+            $_POST['licencia_medica'],
+            $_POST['fecha'],
+            $_POST['hora']
+        );
+
         echo json_encode(["response" => $ok ? "00" : "01"]);
-        break;
+        exit;
+    }
 
-case 'delete':
-        $id_cita = $_POST['id_cita'];
-        $ok = $model->delete($id_cita);
+   
+    // LIBERAR CITA (USUARIO)
+
+   if ($action == 'liberar') {
+
+    $ok = $model->liberarCita(
+        $_POST['id_cita'],
+        $_SESSION['usuario']
+    );
+
+    echo json_encode(["response" => $ok ? "00" : "01"]);
+    exit;
+}
+
+ 
+    // DELETE CITA (ADMIN)
+
+    if ($action == 'delete') {
+
+        $ok = $model->deleteCita($_POST['id_cita']);
+
         echo json_encode(["response" => $ok ? "00" : "01"]);
-        break;
+        exit;
+    }
 
-    case 'getDoctoresHorario':
-        $result = $model->getDoctoresConHorario();
-        echo json_encode(["doctores" => $result->fetch_all(MYSQLI_ASSOC)]);
-        break;
+  
+    // UPDATE
+  
+    if ($action == 'update') {
 
-    default:
-        echo json_encode(["error" => "Acción no válida"]);
+        $ok = $model->updateCita(
+            $_POST['id_cita'],
+            $_POST['nombre_doctor'],
+            $_POST['especialidad'],
+            $_POST['licencia_medica'],
+            $_POST['fecha'],
+            $_POST['hora']
+        );
+
+        echo json_encode(["response" => $ok ? "00" : "01"]);
+        exit;
+    }
+
+    
+    // ERROR
+  
+    echo json_encode([
+        "response" => "404",
+        "error" => "Acción no válida: " . $action
+    ]);
+    exit;
+
+} catch (Throwable $e) {
+
+    echo json_encode([
+        "response" => "500",
+        "error" => $e->getMessage()
+    ]);
+    exit;
 }

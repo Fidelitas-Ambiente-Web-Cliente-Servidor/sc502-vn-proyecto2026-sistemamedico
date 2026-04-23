@@ -1,46 +1,94 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['usuario']) || $_SESSION['rol'] != 1) {
-    http_response_code(401);
-    echo json_encode(["error" => "No autorizado"]);
-    exit;
-}
-
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/../Config/Database.php';
-require_once __DIR__ . '/../app/models/Cita.php';
+require_once("../config/database.php");
+require_once("../app/models/Cita.php");
 
-$database = new Database();
-$db       = $database->connect();
-$model    = new Cita($db);
+$db = (new Database())->connect();
+$cita = new Cita($db);
 
-$action = $_GET['action'] ?? $_POST['action'] ?? '';
+$action = $_POST['action'] ?? $_GET['action'] ?? '';
 
-switch ($action) {
+try {
 
-    case 'getMedicos':
-        $result = $model->getMedicos();
-        echo json_encode(["medicos" => $result->fetch_all(MYSQLI_ASSOC)]);
-        break;
+    
+    // CREAR CITA
 
-    case 'crearMedico':
-        $nombre       = $_POST['nombre']       ?? '';
-        $especialidad = $_POST['especialidad'] ?? '';
-        $cedula       = $_POST['cedula']       ?? '';
-        $horario      = $_POST['horario']      ?? '';
+    if ($action == "crearCita") {
 
-        $ok = $model->crearMedicoCompleto($nombre, $especialidad, $cedula, $horario);
+        $ok = $cita->createCita(
+            $_POST['nombre_doctor'],
+            $_POST['especialidad'],
+            $_POST['licencia_medica'],
+            $_POST['fecha'],
+            $_POST['hora']
+        );
+
+        echo json_encode(["response" => $ok ? "00" : "99"]);
+        exit;
+    }
+
+    // LISTAR CITAS
+  
+    if ($action == "getCitas") {
+
+        $result = $cita->getCitasDisponibles();
+
+        $citas = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $citas[] = $row;
+        }
+
+        echo json_encode(["citas" => $citas]);
+        exit;
+    }
+
+
+    // UPDATE
+
+    if ($action == "update") {
+
+        $ok = $cita->updateCita(
+            $_POST['id_cita'],
+            $_POST['nombre_doctor'],
+            $_POST['especialidad'],
+            $_POST['licencia_medica'],
+            $_POST['fecha'],
+            $_POST['hora']
+        );
+
         echo json_encode(["response" => $ok ? "00" : "01"]);
-        break;
+        exit;
+    }
 
-    case 'eliminarMedico':
-        $id_doctor = (int)($_POST['id_doctor'] ?? 0);
-        $ok = $model->eliminarMedico($id_doctor);
+    // DELETE (ADMIN elimina cita)
+  
+    if ($action == "delete") {
+
+        $ok = $cita->deleteCita($_POST['id_cita']);
+
         echo json_encode(["response" => $ok ? "00" : "01"]);
-        break;
+        exit;
+    }
 
-    default:
-        echo json_encode(["error" => "Acción no válida"]);
+
+    // LIBERAR (USUARIO cancela su cita y se libera para otros usuarios)
+
+    if ($action == "liberar") {
+
+        $ok = $cita->liberarCita($_POST['id_cita']);
+
+        echo json_encode(["response" => $ok ? "00" : "01"]);
+        exit;
+    }
+
+    echo json_encode(["response" => "404"]);
+
+} catch (Throwable $e) {
+
+    echo json_encode([
+        "response" => "500",
+        "error" => $e->getMessage()
+    ]);
 }
