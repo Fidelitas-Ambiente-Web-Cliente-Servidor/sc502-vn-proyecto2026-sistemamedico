@@ -64,48 +64,21 @@ CREATE TABLE TELEFONO_TB (
 );
 
 
-CREATE TABLE ESPECIALIDAD_TB (
-    id_especialidad INT PRIMARY KEY AUTO_INCREMENT,
-    nombre_especialidad VARCHAR(100),
-    id_estado INT,
-    FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
-);
-
-
-CREATE TABLE DOCTOR_TB (
-    id_doctor INT PRIMARY KEY AUTO_INCREMENT,
-    identificacion VARCHAR(100),
-    id_especialidad INT,
-    id_estado INT,
-    FOREIGN KEY (identificacion) REFERENCES USUARIO_TB(identificacion),
-    FOREIGN KEY (id_especialidad) REFERENCES ESPECIALIDAD_TB(id_especialidad),
-    FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
-);
-
-
-CREATE TABLE HORARIO_DOCTOR_TB (
-    id_horario INT PRIMARY KEY AUTO_INCREMENT,
-    id_doctor INT,
-    dia_semana VARCHAR(20),
-    hora_inicio TIME,
-    hora_fin TIME,
-    id_estado INT,
-    FOREIGN KEY (id_doctor) REFERENCES DOCTOR_TB(id_doctor),
-    FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
-);
-
-
 CREATE TABLE CITA_MEDICA_TB (
     id_cita INT PRIMARY KEY AUTO_INCREMENT,
     identificacion VARCHAR(100),
-    id_doctor INT,
+    nombre_doctor VARCHAR(100),
+    licencia_medica VARCHAR(100),
+    especialidad VARCHAR(100),
     fecha DATE,
     hora TIME,
     motivo VARCHAR(255),
     notas TEXT,
     archivo_receta VARCHAR(255),
     id_estado INT,
-    FOREIGN KEY (identificacion) REFERENCES USUARIO_TB(identificacion),
-    FOREIGN KEY (id_doctor) REFERENCES DOCTOR_TB(id_doctor),
-    FOREIGN KEY (id_estado) REFERENCES ESTADO_TB(id_estado)
+
+    FOREIGN KEY (identificacion)
+        REFERENCES USUARIO_TB(identificacion),
+    FOREIGN KEY (id_estado)
+        REFERENCES ESTADO_TB(id_estado)
 );
