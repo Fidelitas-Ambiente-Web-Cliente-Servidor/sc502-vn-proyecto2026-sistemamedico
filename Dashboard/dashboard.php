@@ -6,7 +6,7 @@ if (!isset($_SESSION['usuario'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8">
@@ -16,9 +16,10 @@ if (!isset($_SESSION['usuario'])) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <link rel="stylesheet" href="./dashboard_styles.css">
 
+  <link rel="stylesheet" href="./dashboard_styles.css">
   <script src="dashboard_scripts.js" defer></script>
+
 </head>
 
 <body>
@@ -54,7 +55,7 @@ if (!isset($_SESSION['usuario'])) {
 <!-- CONTENIDO -->
 <div class="container-fluid mt-4 px-5">
 
-  <!-- HEADER (SIN BOTÓN AGENDAR AQUÍ) -->
+  <!-- HEADER -->
   <div class="mb-4">
     <h3 class="text-primary mb-1">Dashboard</h3>
     <span class="text-muted">
@@ -65,9 +66,11 @@ if (!isset($_SESSION['usuario'])) {
   <!-- MIS CITAS -->
   <div class="card shadow-sm mb-4">
 
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-      <h5 class="text-primary mb-0">Mis Citas</h5>
-
+    <div class="card-header bg-white">
+      <h5 class="text-primary mb-0">
+        <i class="bi bi-calendar-check me-2"></i>
+        Mis Citas
+      </h5>
     </div>
 
     <div class="card-body p-0">
@@ -76,49 +79,23 @@ if (!isset($_SESSION['usuario'])) {
 
   </div>
 
-  <!-- SECCIÓN INFERIOR -->
-  <div class="row g-4">
+  <!-- CITAS DISPONIBLES -->
+  <div class="card shadow-sm">
 
-    <!-- CITAS DISPONIBLES (ÚNICO LUGAR PARA AGENDAR) -->
-    <div class="col-12 col-lg-6">
-
-      <div class="card shadow-sm h-100">
-
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 class="text-primary mb-0">Citas Disponibles</h5>
-
-        </div>
-
-        <div class="card-body p-0">
-          <ul class="list-group list-group-flush" id="listaCitasDisponibles"></ul>
-        </div>
-
-      </div>
-
+    <div class="card-header bg-white">
+      <h5 class="text-primary mb-0">
+        <i class="bi bi-calendar-plus me-2"></i>
+        Citas Disponibles
+      </h5>
     </div>
 
-    <!-- DOCTORES -->
-    <div class="col-12 col-lg-6">
-
-      <div class="card shadow-sm h-100">
-
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 class="text-primary mb-0">Doctores</h5>
-
-        </div>
-
-        <div class="card-body p-0">
-          <ul class="list-group list-group-flush" id="listaDoctores"></ul>
-        </div>
-
-      </div>
-
+    <div class="card-body p-0">
+      <ul class="list-group list-group-flush" id="listaCitasDisponibles"></ul>
     </div>
 
   </div>
 
 </div>
-
 
 </body>
 
