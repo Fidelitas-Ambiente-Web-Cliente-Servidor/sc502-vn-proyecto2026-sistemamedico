@@ -77,21 +77,34 @@ function renderizarTabla(citas) {
 
   citas.forEach(function (cita) {
 
-    let fila = `
-      <tr>
-        <td>${cita.paciente}</td>
-        <td>${cita.doctor}</td>
-        <td>${formatearFecha(cita.fecha)}</td>
-        <td>${cita.hora ? cita.hora.substring(0,5) : ""}</td>
-        <td>${cita.motivo || "-"}</td>
-        <td class="text-center">
-          <button class="btn btn-sm btn-outline-danger"
-            onclick="abrirModalEliminar(${cita.id_cita})">
-            <i class="bi bi-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `;
+  let fila = `
+    <tr>
+      <td>${cita.paciente}</td>
+      <td>${cita.doctor}</td>
+      <td>${formatearFecha(cita.fecha)}</td>
+      <td>${cita.hora ? cita.hora.substring(0,5) : ""}</td>
+      <td>${cita.motivo || "-"}</td>
+
+      <td>
+        ${
+          cita.archivo_receta
+            ? `<a href="../recetas/${cita.archivo_receta}"
+                target="_blank"
+                class="btn btn-sm btn-info">
+                Descargar receta
+              </a>`
+            : `<span class="text-muted">Sin receta</span>`
+        }
+      </td>
+
+      <td class="text-center">
+        <button class="btn btn-sm btn-outline-danger"
+          onclick="abrirModalEliminar(${cita.id_cita})">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
+    </tr>
+  `;
 
     tbody.innerHTML += fila;
   });

@@ -98,7 +98,8 @@ public function getCitasPorUsuario($usuario)
             c.nombre_doctor AS doctor,
             c.fecha,
             c.hora,
-            c.motivo
+            c.motivo,
+            c.archivo_receta
         FROM CITA_MEDICA_TB c
         WHERE c.identificacion = ?
         ORDER BY c.fecha, c.hora
@@ -178,6 +179,40 @@ public function liberarCita($id_cita, $usuario)
     $stmt->bind_param("is", $id_cita, $usuario);
 
     return $stmt->execute();
+}
+
+public function subirReceta($id_cita, $archivo)
+{
+    $sql = "
+        UPDATE CITA_MEDICA_TB
+        SET archivo_receta = ?
+        WHERE id_cita = ?
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("si", $archivo, $id_cita);
+
+    return $stmt->execute();
+}
+
+public function getTodasLasCitas()
+{
+    $sql = "
+        SELECT
+            id_cita,
+            identificacion,
+            nombre_doctor,
+            especialidad,
+            licencia_medica,
+            fecha,
+            hora,
+            motivo,
+            archivo_receta
+        FROM CITA_MEDICA_TB
+        ORDER BY fecha, hora
+    ";
+
+    return $this->conn->query($sql);
 }
 
 }
