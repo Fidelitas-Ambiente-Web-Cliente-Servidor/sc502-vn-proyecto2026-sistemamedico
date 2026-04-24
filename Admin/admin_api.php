@@ -29,7 +29,23 @@ try {
     }
 
     // LISTAR CITAS
-  
+
+    if ($action == "getCitas") {
+
+        $result = $cita->getTodasLasCitas();
+
+        $citas = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $citas[] = $row;
+        }
+
+        echo json_encode(["citas" => $citas]);
+        exit;
+    }
+
+    
+  /*
     if ($action == "getCitas") {
 
         $result = $cita->getCitasDisponibles();
@@ -44,7 +60,7 @@ try {
         exit;
     }
 
-
+*/
     // UPDATE
 
     if ($action == "update") {
@@ -71,6 +87,26 @@ try {
         echo json_encode(["response" => $ok ? "00" : "01"]);
         exit;
     }
+
+    if ($action == "uploadReceta") {
+
+    $id_cita = $_POST['id_cita'];
+
+    $fileName = null;
+
+    if (isset($_FILES['receta']) && $_FILES['receta']['error'] == 0) {
+
+        $fileName = time() . "_" . $_FILES['receta']['name'];
+        $ruta = "../recetas/" . $fileName;
+
+        move_uploaded_file($_FILES['receta']['tmp_name'], $ruta);
+    }
+
+    $ok = $cita->subirReceta($id_cita, $fileName);
+
+    echo json_encode(["response" => $ok ? "00" : "01"]);
+    exit;
+}
 
 
     // LIBERAR (USUARIO cancela su cita y se libera para otros usuarios)

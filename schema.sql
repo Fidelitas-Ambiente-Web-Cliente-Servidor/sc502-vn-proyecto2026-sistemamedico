@@ -28,9 +28,6 @@ VALUES
 (1, 'ADMIN', 1),
 (2, 'CLIENTE', 1);
 
-INSERT INTO TIPO_USUARIO_TB (id_tipo_usuario, nombre_tipo, id_estado)
-VALUES (3, 'DOCTOR', 1);
-
 
 CREATE TABLE USUARIO_TB (
     identificacion VARCHAR(100) PRIMARY KEY,

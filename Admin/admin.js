@@ -55,6 +55,7 @@ function cargarCitasAdmin() {
 
       tbody.innerHTML += `
         <tr>
+          <td>${cita.identificacion || 'Disponible'}</td>
           <td>${cita.nombre_doctor}</td>
           <td>${cita.especialidad}</td>
           <td>${cita.licencia_medica || '-'}</td>
@@ -79,6 +80,11 @@ function cargarCitasAdmin() {
               onclick="eliminarCita(${cita.id_cita})">
               <i class="bi bi-trash"></i>
             </button>
+
+            <button class="btn btn-sm btn-success"
+              onclick="subirReceta(${cita.id_cita})">
+                <i class="bi bi-file-earmark-arrow-up"></i>
+              </button>
 
           </td>
         </tr>
@@ -242,4 +248,39 @@ function reservarCita(id) {
     }
 
   });
+}
+
+
+ function subirReceta(id) {
+
+  let input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".pdf,image/*";
+
+  input.onchange = function () {
+
+    let datos = new FormData();
+    datos.append("action", "uploadReceta");
+    datos.append("id_cita", id);
+    datos.append("receta", input.files[0]);
+
+    fetch("admin_api.php", {
+      method: "POST",
+      body: datos
+    })
+    .then(res => res.json())
+    .then(data => {
+
+      if (data.response === "00") {
+        alert("Receta subida correctamente");
+        cargarCitasAdmin();
+      } else {
+        alert("Error al subir receta");
+      }
+
+    });
+
+  };
+
+  input.click();
 }

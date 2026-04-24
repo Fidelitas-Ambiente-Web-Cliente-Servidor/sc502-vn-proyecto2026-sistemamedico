@@ -94,8 +94,6 @@ if ($_SESSION['rol'] != 1) {
                     </div>
 
 
-                    <!-- AGREGA esto debajo de ESPECIALIDAD y antes de FECHA -->
-
                     <!-- LICENCIA MÉDICA -->
                     <div class="mb-3">
                         <label class="form-label">Licencia Médica</label>
@@ -151,6 +149,7 @@ if ($_SESSION['rol'] != 1) {
 
                             <thead class="table-primary">
                             <tr>
+                                <th>Paciente</th>
                                 <th>Doctor</th>
                                 <th>Especialidad</th>
                                 <th>Licencia Médica</th>
