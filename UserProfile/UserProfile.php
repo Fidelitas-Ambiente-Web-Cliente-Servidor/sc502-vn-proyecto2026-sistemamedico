@@ -38,25 +38,29 @@ $usuario = mysqli_fetch_assoc($result);
 <style>
 
 :root {
-  --azul-principal: rgb(0, 1, 189);
+  --azul-principal: rgb(13, 110, 253 );
 }
 
-
 body {
-  background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+  background: url("../Resources/Blue-Border.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   min-height: 100vh;
 }
 
-
 .navbar {
-  background: #ffffff !important;
+  background: rgba(255,255,255,0.95) !important;
   border-bottom: 2px solid #bae6fd;
 }
+
 
 .card {
   border: none;
   border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
 .titulo-perfil {
@@ -68,14 +72,12 @@ body {
 .form-control {
   border-radius: 10px;
   border: 1px solid #cbd5e1;
-  transition: 0.2s;
 }
 
 .form-control:focus {
   border-color: var(--azul-principal);
   box-shadow: 0 0 0 0.25rem rgba(0,1,189,0.20);
 }
-
 
 .btn-primary {
   background: var(--azul-principal);
@@ -89,11 +91,9 @@ body {
   background: rgb(0, 0, 150);
 }
 
-
 .bi {
   color: var(--azul-principal);
 }
-
 
 .form-label {
   font-weight: 600;
