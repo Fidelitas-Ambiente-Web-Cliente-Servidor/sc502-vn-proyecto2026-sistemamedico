@@ -84,17 +84,17 @@
 
             <!-- Doctor preseleccionado (desde dashboard) -->
             <div class="mb-3" id="doctorPreseleccionadoDiv" style="display:none;">
-              <label class="form-label">Doctor</label>
+              <label class="form-label">Cita</label>
               <div class="form-control bg-light" id="doctorPreseleccionado"></div>
             </div>
 
             <!-- Selector de doctor (cuando se abre desde agenda) -->
             <div class="mb-3" id="campoDoctorDiv">
-              <label class="form-label">Doctor <span class="text-danger">*</span></label>
+              <label class="form-label">Cita <span class="text-danger">*</span></label>
               <select class="form-select" id="campoDoctor" onchange="aplicarRestriccionHora(this.value)">
-                <option value="">Seleccione un doctor</option>
+                <option value="">Seleccione una cita</option>
               </select>
-              <span class="error-msg" id="errDoctor">Seleccione un doctor*</span>
+              <span class="error-msg" id="errDoctor">Seleccione una cita*</span>
             </div>
 
             <div class="mb-3">
